@@ -1,26 +1,30 @@
 package com.example.IndiChessBackend.model;
 
-import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
 
-@RequiredArgsConstructor
 public class UserPrincipal implements UserDetails {
 
     private final User user;
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+    public UserPrincipal(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null");
+        }
+        this.user = user;
     }
 
     @Override
-    public @Nullable String getPassword() {
-        return user.getPassword();
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.emptyList(); // no roles for now
+    }
+
+    @Override
+    public String getPassword() {
+        return user.getPassword(); // 🔥 now guaranteed non-null
     }
 
     @Override
@@ -30,21 +34,21 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return true;
     }
 }

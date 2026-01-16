@@ -1,34 +1,35 @@
 package com.example.IndiChessBackend.controller;
 
 import com.example.IndiChessBackend.model.DTO.LoginDto;
-import com.example.IndiChessBackend.model.User;
-import com.example.IndiChessBackend.service.AuthService;
+import com.example.IndiChessBackend.service.JwtService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    // we want users to get stored in db
-    // then use those credentials to login
 
-    private final AuthService authservice;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginDto dto) {
 
-    @PostMapping("/signup")
-    public ResponseEntity<User> handleSignup(@RequestBody User user){
-        return new ResponseEntity<>(authservice.save(user), HttpStatus.CREATED);
+        Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        dto.getUsername(),
+                        dto.getPassword()
+                )
+        );
+
+        // if authenticate() did not throw → credentials are valid
+        String token = jwtService.generateToken(dto.getUsername());
+
+        return ResponseEntity.ok(token);
     }
-
-
-
 }
